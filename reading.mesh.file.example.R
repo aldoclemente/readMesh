@@ -1,5 +1,6 @@
 rm(list=ls())
 source("read.mesh.R")
+library(fdaPDE)
 
 # Square
 filename <-"data/square.mesh"
