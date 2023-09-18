@@ -1,4 +1,4 @@
 load "msh3"
 
 mesh3 Th = cube(5,5,5);
-savemesh(Th, "data/cube.mesh");
+savemesh(Th, "../data/cube.mesh");

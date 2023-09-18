@@ -31,4 +31,4 @@ verbosity=2;
 real[int] domain =[0.,0.,0.,1,0.01];
 mesh3 Th3=tetgtransfo(Th,transfo=[R*f1,R*f2,R*f3],nbofregions=1,regionlist=domain);
 
-savemesh(Th3, "data/sphere3D.mesh");
+savemesh(Th3, "../data/sphere3D.mesh");
