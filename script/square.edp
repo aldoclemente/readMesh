@@ -1,2 +1,2 @@
 mesh Th = square(4, 5);
-savemesh(Th, "../data/square.mesh");
+savemesh(Th, "data/square.mesh");
