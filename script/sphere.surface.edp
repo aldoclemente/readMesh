@@ -1,0 +1,6 @@
+include "MeshSurface.idp"
+
+// Sphere(R,h, L, x0, y0, z0, orientation);
+// modify second parameter, h (mesh scale)
+meshS Th = Sphere(1,0.25,1,0,0,0,1);
+savemesh(Th, "data/sphere.surface.mesh");
