@@ -56,16 +56,28 @@ read.mesh <-function(filename){
   }else if(embedding_dimension==3 & local_dimension == 3){
     mesh <- fdaPDE::create.mesh.3D(nodes=nodes, tetrahedrons = tetrahedra) 
   }
+  nodes <- mesh$nodes
+  elements <- mesh$elements
+  neigh <- mesh$neighbors
+  boundary <- mesh$nodesmarkers
+  triangles <- mesh$triangles 
+  
+  storage.mode(elements) <- "integer"
+  storage.mode(neigh)    <- "integer"
+  storage.mode(boundary) <- "integer"
+  storage.mode(triangles)<- "integer"
   
   if(local_dimension == 2){
-    return(list(nodes=mesh$nodes, 
-                elements=mesh$triangles,
-                neigh=mesh$neighbors,
-                boundary= mesh$nodesmarkers))
+    return(list(nodes=nodes, 
+                elements=triangles,
+                neigh=neigh,
+                boundary=boundary))
   }else{
-    return(list(nodes=mesh$nodes, 
-                elements=mesh$tetrahedrons,
-                neigh=mesh$neighbors,
-                boundary= mesh$nodesmarkers))
+    tetrahedrons <- mesh$tetrahedrons
+    storage.mode(tetrahedrons) <- "integer"
+    return(list(nodes=nodes, 
+                elements=tetrahedrons,
+                neigh=neigh,
+                boundary=boundary))
   }
 }

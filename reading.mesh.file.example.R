@@ -1,4 +1,5 @@
 rm(list=ls())
+if(system.file(package = "fdaPDE") == "") install.packages("fdaPDE")
 source("read.mesh.R")
 library(fdaPDE)
 
