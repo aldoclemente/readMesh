@@ -81,3 +81,20 @@ read.mesh <-function(filename){
                 boundary=boundary))
   }
 }
+
+# x = fdaPDE mesh 
+write.mesh <- function(x, folder){
+  write.csv(x$nodes, file=paste0(folder,"points.csv"))
+  write.csv(x$neigh, file=paste0(folder,"neigh.csv"))
+  write.csv(x$nodesmarkers, file=paste0(folder,"boundary.csv"))
+  
+  if(class(x) == "mesh.2D" | class(x) == "mesh.2.5D"){
+    elements <- x$triangles
+    edges <- x$edges
+  }else if(class(x) == "mesh.3D"){
+    elements <- x$tetrahedrons
+    edges <- x$faces
+  }
+  write.csv(elements, file=paste0(folder,"elements.csv"))
+  write.csv(edges, file=paste0(folder,"edges.csv"))
+}
