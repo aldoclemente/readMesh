@@ -1,0 +1,36 @@
+// Parameters
+real dt = 0.01;
+real mu = 1.;
+
+// Mesh
+mesh Th = square(32, 32);
+
+// Fespace
+fespace Vh(Th, P1);
+Vh u, v, uu, f, g;
+
+// Problem
+problem dHeat (u, v)
+    = int2d(Th)(
+          u*v/dt + mu*(dx(u)*dx(v) + dy(u)*dy(v)))
+    + int2d(Th)(
+        - uu*v/dt - f*v)+ on(1, 2, 3, 4, u=g) ;
+
+// Time loop
+real t = 0;
+uu = 0;
+for (int m = 0; m <100; m++){
+    // Update
+    t = t+dt;
+    f = (8*pi^2-1)* sin(2*pi*x)*sin(2*pi*y) * exp(-t);
+    g = sin(2*pi*x)*sin(2*pi*y) * exp(-t);
+    uu = u;
+
+    // Solve
+    dHeat;
+
+    // Plot
+  //  plot(u, wait=true);
+    cout << "t=" << t << " - L^2-Error=" << sqrt(int2d(Th)((u-exp(-t)*sin(2*pi*x)*sin(2*pi*y))^2)) << endl;
+}
+
