@@ -34,3 +34,8 @@ for (int m = 0; m <100; m++){
     cout << "t=" << t << " - L^2-Error=" << sqrt(int2d(Th)((u-exp(-t)*sin(2*pi*x)*sin(2*pi*y))^2)) << endl;
 }
 
+
+ofstream fileSol ("solution_T.txt");
+for (int i = 0; i<Vh.ndof; i++){
+	fileSol <<u[][i]<<endl;
+}
