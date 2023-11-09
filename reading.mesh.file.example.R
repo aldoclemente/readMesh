@@ -7,8 +7,10 @@ library(fdaPDE)
 filename <-"data/square.mesh"
 domain <- read.mesh(filename)
 mesh <- create.mesh.2D(nodes=domain$nodes, triangles = domain$elements, 
-                       nodesattributes = domain$boundary )
+                       segments = domain$faces)
 plot(mesh)
+range( domain$facesmarkers )
+range( domain$nodesmarkers )
 
 n = c(16,32,64,128)
 for(i in 1:length(n)){
@@ -23,10 +25,14 @@ for(i in 1:length(n)){
 # Surface
 filename <-"data/sphere.surface.mesh"
 domain <- read.mesh(filename)
-mesh <- create.mesh.2.5D(nodes=domain$nodes, triangles = domain$elements,
-                         nodesattributes = domain$boundary)
+
+range(domain$facesmarkers) # ha senso
+range(domain$nodesmarkers) # per imporre dirichlet ? 
+
+mesh <- create.mesh.2.5D(nodes=domain$nodes, triangles = domain$elements)
 plot(mesh)
 
+range(domain$nodesmarkers)
 # Cube
 filename <-"data/cube.mesh"
 domain <- read.mesh(filename)
