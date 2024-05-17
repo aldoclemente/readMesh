@@ -23,7 +23,7 @@ for(i in 1:length(n)){
   write.mesh(mesh, folder=folder)
 }
 # Surface
-filename <-"data/sphere.surface.mesh"
+filename <-"data/sphere.surface_0.125.mesh"
 domain <- read.mesh(filename)
 
 range(domain$facesmarkers) # ha senso
@@ -31,8 +31,20 @@ range(domain$nodesmarkers) # per imporre dirichlet ?
 
 mesh <- create.mesh.2.5D(nodes=domain$nodes, triangles = domain$elements)
 plot(mesh)
-
+dim(mesh$nodes)
 range(domain$nodesmarkers)
+
+h = 0.25 / 2^(0:3)
+for(i in 1:length(h)){
+  filename <- paste0("data/sphere.surface_",h[i],".mesh")
+  domain <- read.mesh(filename)
+  mesh <- create.mesh.2.5D(nodes=domain$nodes, triangles = domain$elements)
+  
+  folder <- paste0("data/sphere_surface_",gsub("[.]", "_",h)[i],"/")
+  if(!dir.exists(folder)) dir.create(folder)
+  write.mesh(mesh, folder=folder)
+}
+
 # Cube
 filename <-"data/cube.mesh"
 domain <- read.mesh(filename)

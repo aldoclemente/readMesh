@@ -2,5 +2,11 @@ include "MeshSurface.idp"
 
 // Sphere(R,h, L, x0, y0, z0, orientation);
 // modify second parameter, h (mesh scale)
-meshS Th = Sphere(1,0.25,1,0,0,0,1);
-savemesh(Th, "data/sphere.surface.mesh");
+
+real[int] h=[0.25,0.125,0.0625, 0.03125];
+
+for(int i=0; i<h.n; ++i){
+	meshS Th = Sphere(1,h[i],1,0,0,0,1);
+    string dataname = "data/sphere.surface_" + h[i] + ".mesh";
+    savemesh(Th, dataname);
+}
