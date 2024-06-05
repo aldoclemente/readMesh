@@ -59,3 +59,19 @@ mesh <- create.mesh.3D(nodes=domain$nodes, tetrahedrons = domain$elements,
                        nodesattributes = domain$boundary)
 plot(mesh)
 
+# 2d write freefem mesh -----------------------------------------------
+n <- c(16,32)
+i = 1
+filename <- paste0("data/square_",n[i],".mesh")
+domain <- read.mesh(filename)
+range(domain$facesmarkers) # ha senso
+range(domain$nodesmarkers) # per imporre dirichlet ? 
+
+mesh <- create.mesh.2D(nodes=domain$nodes, triangles = domain$elements)
+plot(mesh)
+
+write_freefem(mesh)
+
+write.table(mesh$nodes[1:10,], file="input_locations.txt", 
+            row.names = FALSE, col.names = FALSE)
+
