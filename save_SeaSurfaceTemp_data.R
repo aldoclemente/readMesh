@@ -1,4 +1,9 @@
 # Import functions and data
+library(fdaPDE)
+library(simcausal)
+library(latex2exp)
+library(raster)
+
 SST<-raster("../ParameterCascading/Data/SeaSurfaceTemp10042020.nc", varname="analysed_sst")
 SST<-crop(SST,extent(c(-99,-79,18,32)))
 OBSER<-readRDS("../ParameterCascading/Data/GoMSSTData.rds")
@@ -22,9 +27,7 @@ R_betay<-function(x,y)
   
   Value
 }
-library(fdaPDE)
-library(simcausal)
-library(latex2exp)
+
 ################################################################################
 ### Diffusion estimate from actual buoys data - Florida
 ################################################################################
@@ -211,17 +214,21 @@ source("write.mesh.R")
 
 if(!dir.exists("data/emanuele/")) dir.create("data/emanuele/")
 
-write_freefem(MESH_tomasetto_lasca, filename = "data/emanuele/mesh_lasca.mesh")
-write_freefem(MESH_tomasetto, filename = "data/emanuele/mesh_tomasetto.mesh")
-write_freefem(MESH_fine, filename = "data/emanuele/mesh_fine.mesh")
+# mesh lasca -------------------------------------------------------------------
+foldername = "data/emanuele/lasca/"
+if(!dir.exists(foldername)) dir.create(foldername)
 
-write.table(florida_pts, file="data/emanuele/locations.txt", 
+write_freefem(MESH_tomasetto_lasca, 
+              filename = paste0(foldername, "mesh.mesh"))
+
+write.table(florida_pts, 
+            file=paste0(foldername, "locations.txt"), 
             row.names = FALSE, col.names = FALSE)
 
-write.table(florida_vals, file="data/emanuele/observations.txt", 
+write.table(florida_vals, 
+            file=paste0(foldername, "observations.txt"), 
             row.names = FALSE, col.names = FALSE)
 
-# beta su mesh lasca 
 FEMbasis = create.FEM.basis(MESH_tomasetto_lasca)
 transport_x = vector(mode="numeric", length=nrow(MESH_tomasetto_lasca$nodes))
 transport_y = vector(mode="numeric", length=nrow(MESH_tomasetto_lasca$nodes))
@@ -234,14 +241,33 @@ for(i in 1:nrow(MESH_tomasetto_lasca$nodes)){
                            MESH_tomasetto_lasca$nodes[i,2])
 }
 
-write.table(cbind(transport_x, transport_y), file="data/emanuele/Beta_mesh_lasca.txt", 
+write.table(cbind(transport_x, transport_y), 
+            file=paste0(foldername, "Beta.txt"), 
             row.names = FALSE, col.names = FALSE )
-write.table(transport_x, file="data/emanuele/Beta_X_mesh_lasca.txt", 
+write.table(transport_x, 
+            file=paste0(foldername, "Beta_X.txt"), 
             row.names = FALSE, col.names = FALSE)
-write.table(transport_y, file="data/emanuele/Beta_Y_mesh_lasca.txt", 
+write.table(transport_y, 
+            file=paste0(foldername, "Beta_Y.txt"), 
             row.names = FALSE, col.names = FALSE)
 
-# beta su mesh fine 
+# mesh fine --------------------------------------------------------------------
+
+foldername = "data/emanuele/fine/"
+if(!dir.exists(foldername)) dir.create(foldername)
+
+
+write_freefem(MESH_fine, 
+              filename = paste0(foldername, "mesh.mesh"))
+
+write.table(florida_pts, 
+            file=paste0(foldername, "locations.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
+write.table(florida_vals, 
+            file=paste0(foldername, "observations.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
 FEMbasis = create.FEM.basis(MESH_fine)
 transport_x = vector(mode="numeric", length=nrow(MESH_fine$nodes))
 transport_y = vector(mode="numeric", length=nrow(MESH_fine$nodes))
@@ -254,19 +280,40 @@ for(i in 1:nrow(MESH_fine$nodes)){
                            MESH_fine$nodes[i,2])
 }
 
-write.table(cbind(transport_x, transport_y), file="data/emanuele/Beta_mesh_fine.txt", 
+write.table(cbind(transport_x, transport_y), 
+            file=paste0(foldername, "Beta.txt"), 
             row.names = FALSE, col.names = FALSE )
-write.table(transport_x, file="data/emanuele/Beta_X_mesh_fine.txt", 
+write.table(transport_x, 
+            file=paste0(foldername, "Beta_X.txt"), 
             row.names = FALSE, col.names = FALSE)
-write.table(transport_y, file="data/emanuele/Beta_Y_mesh_fine.txt", 
+write.table(transport_y, 
+            file=paste0(foldername, "Beta_Y.txt"), 
             row.names = FALSE, col.names = FALSE)
 
-# beta su mesh tomasetto
+# mesh tomasetto ---------------------------------------------------------------
+
+foldername = "data/emanuele/tomasetto/"
+if(!dir.exists(foldername)) dir.create(foldername)
+
+write_freefem(MESH_tomasetto, 
+              filename = paste0(foldername,"mesh.mesh"))
+
+write_freefem(MESH_fine, 
+              filename = paste0(foldername, "mesh.mesh"))
+
+write.table(florida_pts, 
+            file=paste0(foldername, "locations.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
+write.table(florida_vals, 
+            file=paste0(foldername, "observations.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
 FEMbasis = create.FEM.basis(MESH_tomasetto)
 transport_x = vector(mode="numeric", length=nrow(MESH_tomasetto$nodes))
 transport_y = vector(mode="numeric", length=nrow(MESH_tomasetto$nodes))
 
-for(i in 1:nrow(MESH_tomasetto_lasca$nodes)){
+for(i in 1:nrow(MESH_tomasetto$nodes)){
   transport_x[i] = R_betax(MESH_tomasetto$nodes[i,1], 
                            MESH_tomasetto$nodes[i,2])
   
@@ -274,9 +321,65 @@ for(i in 1:nrow(MESH_tomasetto_lasca$nodes)){
                            MESH_tomasetto$nodes[i,2])
 }
 
-write.table(cbind(transport_x, transport_y), file="data/emanuele/Beta_mesh_tomasetto.txt", 
+write.table(cbind(transport_x, transport_y), 
+            file=paste0(foldername, "Beta.txt"), 
             row.names = FALSE, col.names = FALSE )
-write.table(transport_x, file="data/emanuele/Beta_X_mesh_tomasetto.txt", 
+write.table(transport_x, 
+            file=paste0(foldername, "Beta_X.txt"), 
             row.names = FALSE, col.names = FALSE)
-write.table(transport_y, file="data/emanuele/Beta_Y_mesh_tomasetto.txt", 
+write.table(transport_y, 
+            file=paste0(foldername, "Beta_Y.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
+
+# mesh completa ----------------------------------------------------------------
+foldername = "data/emanuele/golfo/"
+if(!dir.exists(foldername)) dir.create(foldername)
+
+library(femR)
+library(sf)
+boundary_nodes = meshfine$nodes[which(meshfine$nodesmarkers==TRUE),]
+boundary_edges = cbind(1:(nrow(boundary_nodes)-1), 2:nrow(boundary_nodes))
+boundary_edges = rbind(boundary_edges, c(nrow(boundary_nodes), 1))
+
+domain = femR::Domain(list(nodes=boundary_nodes, 
+                           edges = boundary_edges))
+plot(st_as_sfc(domain))
+
+mesh_completa <- build_mesh(domain, maximum_area = 0.05, minimum_angle = 25)
+plot(st_as_sfc(mesh_completa))
+points(cbind(interior_pts$LON, interior_pts$LAT), pch=16, col="red")
+
+mesh_completa <- fdaPDE::create.mesh.2D(nodes=mesh_completa$nodes(),
+                                        triangles = mesh_completa$elements())
+
+write_freefem(mesh_completa, 
+              filename = paste0(foldername, "mesh.mesh"))
+
+write.table(cbind(interior_pts$LON, interior_pts$LAT), 
+            file=paste0(foldername, "locations.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
+write.table(interior_pts$data_vals, 
+            file=paste0(foldername, "observations.txt"), 
+            row.names = FALSE, col.names = FALSE)
+
+FEMbasis = create.FEM.basis(mesh_completa)
+transport_x = vector(mode="numeric", length=nrow(mesh_completa$nodes))
+transport_y = vector(mode="numeric", length=nrow(mesh_completa$nodes))
+
+for(i in 1:nrow(mesh_completa$nodes)){
+  transport_x[i] = R_betax(mesh_completa$nodes[i,1], 
+                           mesh_completa$nodes[i,2])
+  
+  transport_y[i] = R_betay(mesh_completa$nodes[i,1], 
+                           mesh_completa$nodes[i,2])
+}
+
+write.table(cbind(transport_x, transport_y), 
+            file=paste0(foldername,"Beta.txt"), 
+            row.names = FALSE, col.names = FALSE )
+write.table(transport_x, file=paste0(foldername, "Beta_X.txt"), 
+            row.names = FALSE, col.names = FALSE)
+write.table(transport_y, file=paste0(foldername, "Beta_Y.txt"), 
             row.names = FALSE, col.names = FALSE)
