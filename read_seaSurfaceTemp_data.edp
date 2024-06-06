@@ -1,6 +1,8 @@
 // 
 
-mesh Th = readmesh("data/emanuele/mesh_lasca.mesh");
+string meshType = "golfo/";
+string foldername = "data/emanuele/" + meshType;
+mesh Th = readmesh(foldername + "mesh.mesh");
 plot(Th, WindowIndex=1);
 
 // number of locations 
@@ -10,8 +12,8 @@ real[int, int] locations(nLocs, 2);
 real[int] observations(nLocs);
 
 // read files
-ifstream inputLocs("data/emanuele/locations.txt");
-ifstream inputObs("data/emanuele/observations.txt");
+ifstream inputLocs(foldername + "locations.txt");
+ifstream inputObs(foldername + "observations.txt");
 
 // Read the file and fill the matrix
 for (int i = 0; i < nLocs; ++i) {
@@ -36,10 +38,10 @@ for (int i = 0; i < nLocs; ++i) {
 }
 
 // read transport field
-ifstream inputBetaX("data/emanuele/Beta_X_mesh_lasca.txt");
+ifstream inputBetaX(foldername + "Beta_X.txt");
 real[int] vecBetaX(Th.nv);
 
-ifstream inputBetaY("data/emanuele/Beta_Y_mesh_lasca.txt");
+ifstream inputBetaY(foldername + "Beta_Y.txt");
 real[int] vecBetaY(Th.nv);
 
 
