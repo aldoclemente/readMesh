@@ -1,3 +1,75 @@
 // 
 
-mesh Th ...
+mesh Th = readmesh("data/emanuele/mesh_lasca.mesh");
+plot(Th, WindowIndex=1);
+
+// number of locations 
+int nLocs = 30;  
+
+real[int, int] locations(nLocs, 2);
+real[int] observations(nLocs);
+
+// read files
+ifstream inputLocs("data/emanuele/locations.txt");
+ifstream inputObs("data/emanuele/observations.txt");
+
+// Read the file and fill the matrix
+for (int i = 0; i < nLocs; ++i) {
+    for (int j = 0; j < 2; ++j) {
+        inputLocs >> locations(i, j);
+    }
+    inputObs >> observations(i);
+}
+
+// Print the matrix to verify the content
+cout << "Locations content:\n";
+for (int i = 0; i < nLocs; ++i) {
+    for (int j = 0; j < 2; ++j) {
+        cout << locations(i, j) << " ";
+    }
+    cout << endl;
+}
+
+cout << "Observations content:\n";
+for (int i = 0; i < nLocs; ++i) {
+    cout << observations(i) << " " << endl;
+}
+
+// read transport field
+ifstream inputBetaX("data/emanuele/Beta_X_mesh_lasca.txt");
+real[int] vecBetaX(Th.nv);
+
+ifstream inputBetaY("data/emanuele/Beta_Y_mesh_lasca.txt");
+real[int] vecBetaY(Th.nv);
+
+
+for(int i = 0; i < Th.nv; i++){
+	inputBetaX >> vecBetaX(i);
+	inputBetaY >> vecBetaY(i);
+}
+
+cout << "Beta content:\n";
+for (int i = 0; i < Th.nv; ++i){
+        cout << vecBetaX(i) << " " << vecBetaY(i) << endl;
+}
+
+
+fespace Vh(Th, P1);
+
+Vh betaX, betaY; //
+
+betaX[] = vecBetaX;
+betaY[] = vecBetaY;
+
+plot([betaX], value = 1, fill = 1, wait = 0, cmm = "Beta_X", WindowIndex = 2); 
+plot([betaY], value = 1, fill = 1, wait = 0, cmm = "Beta_Y", WindowIndex = 3); 
+
+
+
+
+
+
+
+
+
+
