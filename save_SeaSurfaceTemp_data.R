@@ -298,9 +298,6 @@ if(!dir.exists(foldername)) dir.create(foldername)
 write_freefem(MESH_tomasetto, 
               filename = paste0(foldername,"mesh.mesh"))
 
-write_freefem(MESH_fine, 
-              filename = paste0(foldername, "mesh.mesh"))
-
 write.table(florida_pts, 
             file=paste0(foldername, "locations.txt"), 
             row.names = FALSE, col.names = FALSE)
