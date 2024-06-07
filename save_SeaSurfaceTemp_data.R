@@ -1,5 +1,6 @@
 # Import functions and data
 library(fdaPDE)
+library(femR)
 library(simcausal)
 library(latex2exp)
 library(raster)
@@ -101,8 +102,66 @@ plot(SST_flo - 273.15, col = viridis::inferno(100), bty="n", box=FALSE, axes=FAL
   FEMbasis <-create.FEM.basis(mesh)
 }
 
-MESH_tomasetto_lasca = mesh
-plot(MESH_tomasetto_lasca)
+boundary_idx = which(mesh_1$nodesmarkers == 1)
+boundary_nodes_bottom = which( (mesh_1$nodes[,2] - 1e-5) <= min(mesh_1$nodes[,2]))   # Neumann, 1
+boundary_nodes_bottom = c(1, boundary_nodes_bottom)
+boundary_nodes_left = which( (mesh_1$nodes[,1]  - 1e-5)  <= min(mesh_1$nodes[,1]))   # Neumann, 2
+boundary_nodes_left = boundary_nodes_left[-length(boundary_nodes_left)]
+boundary_nodes_upper_right = which(mesh_1$nodes[,2] + 1e-5 >= max(mesh_1$nodes[,2])) # Neumann, 4 ( !!! )
+boundary_nodes_right = which(mesh_1$nodes[,1] + 1e-5 >= max(mesh_1$nodes[,1]))       # Neumann, 5 
+boundary_nodes_right = boundary_nodes_right[-1]
+boundary_nodes_florida = setdiff(boundary_idx,                                                # Dirichlet, 3 
+                                 c(boundary_nodes_bottom, boundary_nodes_left,
+                                   boundary_nodes_upper_right, boundary_nodes_right))
+
+n_boundary_bottom = length(boundary_nodes_bottom)
+n_boundary_left = length(boundary_nodes_left)
+n_boundary_florida = length(boundary_nodes_florida)
+n_boundary_upper_right = length(boundary_nodes_upper_right)
+n_boundary_right = length(boundary_nodes_right)
+
+n_boundary <- c(n_boundary_bottom, n_boundary_left, n_boundary_florida, n_boundary_upper_right, n_boundary_right)
+
+boundary_edges = matrix(nrow=0, ncol=2)
+boundary_edges = rbind(boundary_edges, cbind(1:(n_boundary[1]-1), 2:(n_boundary[1])))
+
+for(i in 2:length(n_boundary)){
+  boundary_edges = rbind(boundary_edges, cbind(seq((cumsum(n_boundary)[i-1]), (cumsum(n_boundary)[i]-1)),
+                             seq((1+cumsum(n_boundary)[i-1]), (cumsum(n_boundary)[i]))))
+}
+boundary_edges = rbind(boundary_edges, cbind(cumsum(n_boundary)[i], 1))
+
+boundary_nodes = cbind(mesh_1$nodes[boundary_idx, ])
+boundary_nodes_attr = matrix(1, nrow=sum(n_boundary)) # Neumann
+boundary_nodes_attr[ boundary_nodes_florida ] = 2 # Dirichlet 
+storage.mode(boundary_nodes_attr)  ="integer"
+
+domain = femR::Domain(list(nodes=boundary_nodes, 
+                           edges = boundary_edges))
+plot(st_as_sfc(domain))
+
+MESH_lasca <- build_mesh(domain, maximum_area = 0.05, minimum_angle = 25)
+plot(MESH_lasca)
+
+MESH_lasca <- fdaPDE::create.mesh.2D(nodes=MESH_lasca$nodes(),
+                                     triangles = MESH_lasca$elements())
+
+MESH_lasca$nodesmarkers[boundary_idx] = boundary_nodes_attr
+
+first_dirchlet_bd = which(MESH_lasca$nodesmarkers == 2)[1]
+last_dirchlet_bd = which(MESH_lasca$nodesmarkers == 2)[sum(MESH_lasca$nodesmarkers == 2)]
+
+first_segment = which(MESH_lasca$segments[,1] == first_dirchlet_bd)
+last_segment = which(MESH_lasca$segments[,2] == last_dirchlet_bd)
+
+for(dir_node in which(MESH_lasca$nodesmarkers == 2)){
+  for( seg in which(MESH_lasca$segments[,1] == dir_node |
+                    MESH_lasca$segments[,2] == dir_node)){
+    other_bd_node = setdiff(MESH_lasca$segments[seg,], dir_node)
+    if(...)
+  }
+    
+}
 
 
 # Regular mesh with refinement for dominant transport
@@ -193,11 +252,8 @@ plot(MESH_tomasetto_lasca)
   plot(mesh,asp=1, pch=".")
 }
 
-MESH_tomasetto = mesh
-LOCATIONS_tomasetto = florida_pts
-
 # per il campo ?
-MESH_fine = refine.mesh.2D(MESH_tomasetto_lasca,minimum_angle=0.25,maximum_area=0.025)
+MESH_fine = refine.mesh.2D(MESH_lasca,minimum_angle=0.25,maximum_area=0.025)
 
 plot(MESH_fine)
 points(florida_pts, pch=16, col="red")
@@ -205,7 +261,7 @@ points(florida_pts, pch=16, col="red")
 plot(MESH_tomasetto)
 points(florida_pts, pch=16, col="red")
 
-plot(MESH_tomasetto_lasca)
+plot(MESH_lasca)
 points(florida_pts, pch=16, col="red")
 
 # write freefem
@@ -218,7 +274,7 @@ if(!dir.exists("data/emanuele/")) dir.create("data/emanuele/")
 foldername = "data/emanuele/lasca/"
 if(!dir.exists(foldername)) dir.create(foldername)
 
-write_freefem(MESH_tomasetto_lasca, 
+write_freefem(MESH_lasca, 
               filename = paste0(foldername, "mesh.mesh"))
 
 write.table(florida_pts, 
@@ -229,16 +285,16 @@ write.table(florida_vals,
             file=paste0(foldername, "observations.txt"), 
             row.names = FALSE, col.names = FALSE)
 
-FEMbasis = create.FEM.basis(MESH_tomasetto_lasca)
-transport_x = vector(mode="numeric", length=nrow(MESH_tomasetto_lasca$nodes))
-transport_y = vector(mode="numeric", length=nrow(MESH_tomasetto_lasca$nodes))
+FEMbasis = create.FEM.basis(MESH_lasca)
+transport_x = vector(mode="numeric", length=nrow(MESH_lasca$nodes))
+transport_y = vector(mode="numeric", length=nrow(MESH_lasca$nodes))
 
-for(i in 1:nrow(MESH_tomasetto_lasca$nodes)){
-  transport_x[i] = R_betax(MESH_tomasetto_lasca$nodes[i,1], 
-                           MESH_tomasetto_lasca$nodes[i,2])
+for(i in 1:nrow(MESH_lasca$nodes)){
+  transport_x[i] = R_betax(MESH_lasca$nodes[i,1], 
+                           MESH_lasca$nodes[i,2])
   
-  transport_y[i] = R_betay(MESH_tomasetto_lasca$nodes[i,1], 
-                           MESH_tomasetto_lasca$nodes[i,2])
+  transport_y[i] = R_betay(MESH_lasca$nodes[i,1], 
+                           MESH_lasca$nodes[i,2])
 }
 
 write.table(cbind(transport_x, transport_y), 
