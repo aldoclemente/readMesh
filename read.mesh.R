@@ -22,12 +22,11 @@ read_freefem <- function(filename){
   format.version <- as.integer(unlist(strsplit(file[grep("MeshVersion", file, fixed=T)]," "))[2])
   
   if(format.version == 1){
-    
     #2D 
     embedding_dimension <- strtoi(file[4])
-  }else if(format.version == 2){
+  }else if(format.version == 0 || format.version == 2){
     
-    # 2.5D or 3D
+    # 2D, 2.5D or 3D
     embedding_dimension <- strtoi(strsplit(file[3],split=" ")[[1]][2])
     
   }
