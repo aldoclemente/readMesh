@@ -26,3 +26,24 @@ write_freefem = function(mesh, filename="mesh.mesh"){
   system(paste0("echo ' ' >>", filename))
   system(paste0("echo 'End' >>", filename))
 }
+
+write_txt = function(mesh, folder){
+    write.table(mesh$nodes,  row.names = FALSE, col.names = FALSE,
+                file=paste0(folder,"points.txt"))
+    write.table(mesh$neigh,  row.names = FALSE, col.names = FALSE,
+                file=paste0(folder,"neigh.txt"))
+    write.table(mesh$nodesmarkers,  row.names = FALSE, col.names = FALSE,
+                file=paste0(folder,"boundary.txt"))
+    
+    if(class(mesh) == "mesh.2D" | class(mesh) == "mesh.2.5D"){
+      elements <- mesh$triangles
+      edges <- mesh$edges
+    }else if(class(mesh) == "mesh.3D"){
+      elements <- mesh$tetrahedrons
+      edges <- mesh$faces
+    }
+    write.table(elements,  row.names = FALSE, col.names = FALSE,
+                file=paste0(folder,"elements.txt"))
+    write.table(edges,  row.names = FALSE, col.names = FALSE,
+                file=paste0(folder,"edges.txt"))
+}

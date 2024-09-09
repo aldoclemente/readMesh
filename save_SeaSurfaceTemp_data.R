@@ -138,8 +138,8 @@ storage.mode(boundary_nodes_attr)  ="integer"
 
 domain = femR::Domain(list(nodes=boundary_nodes, 
                            edges = boundary_edges))
-plot(st_as_sfc(domain))
-
+plot(st_as_sfc(domain), col="red")
+st_area(st_as_sfc(domain))
 MESH_lasca <- build_mesh(domain, maximum_area = 0.05, minimum_angle = 25)
 plot(MESH_lasca)
 
@@ -397,8 +397,8 @@ boundary_edges = rbind(boundary_edges, c(nrow(boundary_nodes), 1))
 
 domain = femR::Domain(list(nodes=boundary_nodes, 
                            edges = boundary_edges))
-plot(st_as_sfc(domain))
-
+plot(st_as_sfc(domain), col="red")
+st_area(st_as_sfc(domain))
 mesh_completa <- build_mesh(domain, maximum_area = 0.05, minimum_angle = 25)
 plot(st_as_sfc(mesh_completa))
 points(cbind(interior_pts$LON, interior_pts$LAT), pch=16, col="red")
