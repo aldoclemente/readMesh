@@ -86,8 +86,6 @@ read_freefem <- function(filename){
                 facesmarkers = edgesmarkers,
                 nodesmarkers=nodesmarkers))
   }else{
-    tetrahedrons <- mesh$tetrahedrons
-    storage.mode(tetrahedrons) <- "integer"
     return(list(nodes=nodes, 
                 elements=tetrahedra,
                 faces = triangles,
